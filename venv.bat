@@ -20,7 +20,7 @@ python -m pip install --upgrade pip
 echo.
 
 echo Installing Packages
-pip install -r requirements..txt
+pip install -r requirements.txt
 echo.
 
 pause
