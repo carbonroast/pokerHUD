@@ -1,0 +1,10 @@
+comtypes==1.1.7
+mss==4.0.3
+numpy==1.16.4
+opencv-python==4.1.0.25
+Pillow==6.1.0
+pypiwin32==223
+pytesseract==0.2.7
+pywin32==224
+pywinauto==0.6.7
+six==1.12.0
