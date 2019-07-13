@@ -9,7 +9,12 @@ from tkinter import *
 import pywinauto
 import win32api
 import win32con
+from datetime import datetime
+import os
 
+string = ""
+
+# Compares pixels to see if the image has changed
 def image_compare(img1, img2):
     arr1 = numpy.array(img1)
     arr2 = numpy.array(img2)
@@ -19,38 +24,22 @@ def image_compare(img1, img2):
     return maxdiff == 0
 
 
-def CreateBox(x,y,x2,y2):
-    width = abs(x2-x)
-    height = abs(y2-y)
-    return {"top": min(y, y2), "left": min(x, x2), "width": width, "height": height}
-
-def main():
-    with mss.mss() as sct:
-        monitor = {"top": 0, "left": 0, "width": 800, "height": 640}
-        while "Screen capturing":
-            img = numpy.array(sct.grab(monitor))
-            cv2.imshow("OpenCV/Numpy normal", img)
-            print("Screenshot 1 Taken")
-            time.sleep(3)
-            img2 = numpy.array(sct.grab(monitor))
-            print("Screenshot 2 Taken")
-            if image_compare(img,img2):
-                print("SAME")
-            else:
-                print("DIFF")
-            # Press q to quit
-            if cv2.waitKey(25) & 0xff == ord("q"):
-                cv2.destroyAllWindows()
-                break
-
-
-def TakeScreenshot(box):
+def TakeScreenshots(box):
     with mss.mss() as sct:
         while "Screen capturing":
 
             img = numpy.array(sct.grab(box))
             cv2.imshow("OpenCV/Numpy normal", img)
-
+            time.sleep(0.5)
+            img2 = numpy.array(sct.grab(box))
+            if image_compare(img, img2):
+                print("Same Picture")
+            else:
+                print("Different Picture")
+                name = str(datetime.now()).replace(".","").replace(":","-") + ".png"
+                cv2.imwrite(name, img2)
+                ReadScreenShot(name)
+                os.remove(name)
             # Press q to quit
             if cv2.waitKey(25) & 0xff == ord("q"):
                 cv2.destroyAllWindows()
@@ -59,9 +48,12 @@ def TakeScreenshot(box):
 
 def ReadScreenShot(image):
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-    print(pytesseract.image_to_string(Image.open(image)))
+    global string
+    string = pytesseract.image_to_string(image)
+    print(string)
 
 
+# Creates the boundaries for the bounding box
 def DrawBox():
     while True:
         click = False
@@ -79,12 +71,12 @@ def DrawBox():
         if click:
             print(x, y)
             print(x2, y2)
-            box = CreateBox(x, y, x2, y2)
-            print(box)
-            TakeScreenshot(box)
-
+            width = abs(x2 - x)
+            height = abs(y2 - y)
+            return {"top": min(y, y2), "left": min(x, x2), "width": width, "height": height}
         time.sleep(0.01)
 
 if __name__ == "__main__":
     print("Start")
-    DrawBox()
+    boundary = DrawBox()
+    TakeScreenshots(boundary)
