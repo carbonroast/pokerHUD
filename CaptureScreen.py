@@ -50,6 +50,49 @@ def TakeScreenshots(box):
                 cv2.destroyAllWindows()
                 break
 
+def BlackandWhite(image):
+    img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    grey_3_channel = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2BGR)
+    (thresh, bwimage) = cv2.threshold(grey_3_channel, 127, 255, cv2.THRESH_BINARY)
+    return bwimage
+
+def GrayScale(image):
+    img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    grey_3_channel = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2BGR)
+    return grey_3_channel
+
+
+def Test(box):
+    with mss.mss() as sct:
+        while "Screen capturing":
+            img = numpy.array(sct.grab(box))
+            name = str(datetime.now()).replace(".", "").replace(":", "-") + ".png"
+            cv2.imwrite(name, img)
+            img2 = cv2.imread(name)
+            bw = BlackandWhite(img)
+            g = GrayScale(img)
+            print(img2.shape)
+            print(bw.shape)
+            print(g.shape)
+            os.remove(name)
+            img_con = numpy.concatenate((img2,bw,g), axis=1)
+            cv2.imshow("OpenCV/Numpy normal", img_con)
+            if keyboard.is_pressed('t'):
+                name = str(datetime.now()).replace(".", "").replace(":", "-") + ".png"
+                cv2.imwrite(name, bw)
+                print("-------------------BLACK AND WHITE---------------------")
+                ReadScreenShot(name)
+                os.remove(name)
+                name = str(datetime.now()).replace(".", "").replace(":", "-") + ".png"
+                cv2.imwrite(name,g)
+                print("-------------------------Gray--------------------------")
+                ReadScreenShot(name)
+                os.remove(name)
+            # Press q to quit
+            if cv2.waitKey(25) & 0xff == ord("q"):
+                cv2.destroyAllWindows()
+                break
+
 def TakeAndRead(box):
     with mss.mss() as sct:
         while "Screen capturing":
@@ -114,7 +157,7 @@ if __name__ == "__main__":
             if keyboard.is_pressed('f'):
                 TakeScreenshots(boundary)
             if keyboard.is_pressed('t'):
-                TakeAndRead(boundary)
+                Test(boundary)
 
     """
     img_rgb = cv2.imread('playersattable.jpg')
