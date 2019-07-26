@@ -61,6 +61,16 @@ def GrayScale(image):
     grey_3_channel = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2BGR)
     return grey_3_channel
 
+def Blur(grayimage):
+    gray = cv2.medianBlur(grayimage, 3)
+    return gray
+
+def Thresholding(image):
+    grayimage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = cv2.threshold(grayimage, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    grey_3_channel = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+    return grey_3_channel
+
 
 def Test(box):
     with mss.mss() as sct:
@@ -71,11 +81,11 @@ def Test(box):
             img2 = cv2.imread(name)
             bw = BlackandWhite(img)
             g = GrayScale(img)
-            print(img2.shape)
-            print(bw.shape)
-            print(g.shape)
+            b = Blur(g)
+            t = Thresholding(img)
+
             os.remove(name)
-            img_con = numpy.concatenate((img2,bw,g), axis=1)
+            img_con = numpy.concatenate((img2, bw, g, b, t), axis=1)
             cv2.imshow("OpenCV/Numpy normal", img_con)
             if keyboard.is_pressed('t'):
                 name = str(datetime.now()).replace(".", "").replace(":", "-") + ".png"
@@ -83,9 +93,16 @@ def Test(box):
                 print("-------------------BLACK AND WHITE---------------------")
                 ReadScreenShot(name)
                 os.remove(name)
-                name = str(datetime.now()).replace(".", "").replace(":", "-") + ".png"
-                cv2.imwrite(name,g)
+                cv2.imwrite(name, g)
                 print("-------------------------Gray--------------------------")
+                ReadScreenShot(name)
+                os.remove(name)
+                cv2.imwrite(name, b)
+                print("-------------------------Blur--------------------------")
+                ReadScreenShot(name)
+                os.remove(name)
+                cv2.imwrite(name, t)
+                print("-------------------------Threshold--------------------------")
                 ReadScreenShot(name)
                 os.remove(name)
             # Press q to quit
